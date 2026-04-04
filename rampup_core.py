@@ -125,8 +125,9 @@ async def iniciar_robo_rampup(links_dict):
     async with async_playwright() as p:
         context = await p.chromium.launch_persistent_context(
             user_data_dir=user_data_path,
+            channel="chrome",
             headless=False,
-            viewport={"width": 1920, "height": 1080}, 
+            viewport={"width": 1920, "height": 1080},
             args=["--start-maximized"],
             device_scale_factor=1
         )

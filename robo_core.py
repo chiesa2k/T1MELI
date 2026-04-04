@@ -97,12 +97,13 @@ async def iniciar_robo(links_dict):
     async with async_playwright() as p:
         context = await p.chromium.launch_persistent_context(
             user_data_dir=user_data_path,
+            channel="chrome",
             headless=False,
-            viewport={"width": 1920, "height": 1080}, 
+            viewport={"width": 1920, "height": 1080},
             args=["--start-maximized"],
             device_scale_factor=1
         )
-        
+
         for nome, link in links_dict.items():
             
             # ==============================================================================
@@ -115,8 +116,9 @@ async def iniciar_robo(links_dict):
                 await asyncio.sleep(2) # Pausa rápida para garantir que o Chrome fechou
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=user_data_path,
+                    channel="chrome",
                     headless=False,
-                    viewport={"width": 1920, "height": 1080}, 
+                    viewport={"width": 1920, "height": 1080},
                     args=["--start-maximized"],
                     device_scale_factor=1
                 )
