@@ -1,0 +1,148 @@
+# ==============================================================================
+# ASTROMETIC — DEPENDÊNCIAS DO PROJETO
+# ==============================================================================
+# Python requerido: 3.13+
+#
+# INSTALAÇÃO RÁPIDA:
+#   pip install -r requirements.txt
+#   playwright install chromium
+#
+# IMPORTANTE: Após instalar, é necessário configurar as sessões de login
+# manualmente (ver seção "Autenticação" abaixo).
+# ==============================================================================
+
+
+# ------------------------------------------------------------------------------
+# DEPENDÊNCIAS PRINCIPAIS (usadas pelos scripts ativos)
+# ------------------------------------------------------------------------------
+
+# Automação de browser — abre o Chromium, navega no Looker Studio,
+# aplica filtros de hora via cliques no DOM, tira screenshots,
+# e também controla o WhatsApp Web para envio das imagens.
+# Requer passo adicional após instalação: `playwright install chromium`
+playwright==1.57.0
+
+# Processamento de imagens — realiza os dois estágios de recorte:
+#   1. robo_core.py:   crop (330, 145, 1920, 1080) → prints_finais/
+#   2. alfaiate.py:    crop (255, 30, 1180, 580)   → recortes/
+#   3. rampup_core.py: crop (539, 47, 1548, 809)   → rampup_recortes/
+Pillow==12.1.0
+
+
+# ------------------------------------------------------------------------------
+# DEPENDÊNCIAS OPCIONAIS (presentes no venv, mas não usadas nos scripts ativos)
+# ------------------------------------------------------------------------------
+# As libs abaixo estavam instaladas originalmente para uso em protótipos
+# e utilitários (mapear.py, main.py, etc.). Não são necessárias para
+# rodar rodar_tudo.py nem rodar_rampup.py.
+#
+# Se precisar reativar o mapear.py ou scripts de análise de dados, descomente:
+#
+# openai==2.15.0          # GPT-4 Vision — usado apenas em mapear.py (utilitário de calibração)
+# pandas==3.0.0           # Análise de dados tabulares
+# openpyxl==3.1.5         # Leitura/escrita de arquivos .xlsx
+# numpy==2.4.1            # Computação numérica
+# nest_asyncio==1.6.0     # Permite rodar asyncio dentro de ambientes já assíncronos (ex: Jupyter)
+
+
+# ==============================================================================
+# ESTRUTURA DE PASTAS NECESSÁRIA
+# ==============================================================================
+# O sistema cria automaticamente as pastas abaixo na primeira execução,
+# mas é importante saber para que servem:
+#
+#   user_data/          → Sessão persistente do Chromium para o Looker Studio
+#                         (guarda o login Google — NÃO deletar)
+#
+#   sessao_zap/         → Sessão persistente do Chromium para o WhatsApp Web
+#                         (guarda o QR Code escaneado — NÃO deletar)
+#
+#   prints_finais/      → Screenshots brutos após primeiro recorte (robo_core)
+#   recortes/           → Imagens finais prontas para envio (alfaiate)
+#   rampup_brutos/      → Screenshots brutos do Ramp Up (rampup_core)
+#   rampup_recortes/    → Imagens finais do Ramp Up prontas para envio
+#
+#   targets_rampup.json → Gerado automaticamente pelo rampup_core com os
+#                         targets utilizados em cada execução
+
+
+# ==============================================================================
+# AUTENTICAÇÃO — ATENÇÃO PARA NOVOS MEMBROS DA EQUIPE
+# ==============================================================================
+#
+# O sistema usa DOIS contextos de browser com sessão persistente:
+#
+# 1. LOOKER STUDIO (pasta user_data/)
+#    - O token de login da empresa se renova diariamente
+#    - Na primeira execução (ou após expirar), o Chromium vai abrir e
+#      pedir login. Faça o login normalmente — a sessão fica salva.
+#    - Nas execuções seguintes, o login é automático até o token expirar.
+#    - IMPORTANTE: Cada membro da equipe precisa da sua própria pasta
+#      user_data/ com seu próprio login Google corporativo.
+#
+# 2. WHATSAPP WEB (pasta sessao_zap/)
+#    - Na primeira execução, o Chromium vai abrir o WhatsApp Web pedindo
+#      o QR Code. Escaneie com seu celular.
+#    - A sessão fica salva e não precisa repetir (até trocar de celular).
+#    - IMPORTANTE: Cada membro precisa da sua própria pasta sessao_zap/
+#      com seu próprio WhatsApp vinculado.
+#
+# RESOLUÇÃO OBRIGATÓRIA: 1920x1080
+#    - As coordenadas de recorte são fixas para 1080p.
+#    - O script falha silenciosamente se o monitor tiver outra resolução.
+#    - Se necessário, altere as constantes AREA_DE_CORTE em:
+#        robo_core.py  → (330, 145, 1920, 1080)
+#        alfaiate.py   → (255, 30, 1180, 580)
+#        rampup_core.py → (539, 47, 1548, 809)
+
+
+# ==============================================================================
+# SCRIPTS PRINCIPAIS
+# ==============================================================================
+#
+#   rodar_tudo.py      → Loop infinito (1h). Processa os 6 relatórios de
+#                        eficiência operacional e envia via WhatsApp.
+#                        Relatórios: PICKING_TTS_MULTI, PICKING_NTT_MULTI,
+#                        PACKING_TT_MONO, PACKING_TT_MULTI, PACKING_NTT, PTW
+#
+#   rodar_rampup.py    → Execução única. Processa os 6 relatórios de Ramp Up
+#                        com targets dinâmicos por hora e envia via WhatsApp.
+#                        Relatórios: PICKING_TTS_MULTI, PICKING_NTT_MULTI,
+#                        PACKING_TT_MONO, PACKING_NTT_MONO, PACKING_TT_MULTI, PTW
+#
+#   carteiro.py        → Envio manual das imagens de recortes/ para o grupo
+#                        WhatsApp "ID/EA | Indicadores"
+#
+#   carteiro_rampup.py → Envio manual das imagens de rampup_recortes/ com
+#                        legendas dinâmicas incluindo o Target utilizado
+
+
+# ==============================================================================
+# SETUP COMPLETO PARA UM NOVO MEMBRO (passo a passo)
+# ==============================================================================
+#
+# 1. Instalar Python 3.13+  →  https://www.python.org/downloads/
+#
+# 2. Criar o ambiente virtual:
+#       python -m venv .venv
+#
+# 3. Ativar o ambiente virtual:
+#       Windows CMD:       .venv\Scripts\activate
+#       Windows Git Bash:  source .venv/Scripts/activate
+#
+# 4. Instalar dependências:
+#       pip install -r requirements.txt
+#
+# 5. Instalar o browser Chromium do Playwright:
+#       playwright install chromium
+#
+# 6. Fazer o login no Looker Studio:
+#       python rodar_tudo.py
+#       (na primeira execução, logar com a conta Google corporativa)
+#
+# 7. Fazer o login no WhatsApp Web:
+#       python carteiro.py
+#       (escanear o QR Code com o celular)
+#
+# 8. Pronto! A partir daqui os logins ficam salvos nas pastas
+#    user_data/ e sessao_zap/ respectivamente.
