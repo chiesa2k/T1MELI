@@ -128,7 +128,8 @@ async def iniciar_robo_rampup(links_dict):
             channel="chrome",
             headless=False,
             viewport={"width": 1920, "height": 1080},
-            args=["--start-maximized"],
+            args=["--start-maximized", "--disable-blink-features=AutomationControlled"],
+            ignore_default_args=["--enable-automation"],
             device_scale_factor=1
         )
         
@@ -142,7 +143,8 @@ async def iniciar_robo_rampup(links_dict):
                     user_data_dir=user_data_path,
                     headless=False,
                     viewport={"width": 1920, "height": 1080}, 
-                    args=["--start-maximized"],
+                    args=["--start-maximized", "--disable-blink-features=AutomationControlled"],
+            ignore_default_args=["--enable-automation"],
                     device_scale_factor=1
                 )
 

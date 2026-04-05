@@ -5,7 +5,7 @@ import asyncio
 from playwright.async_api import async_playwright
 import os
 
-URL_LOOKER = "https://lookerstudio.google.com/"
+URL_LOGIN = "https://accounts.google.com/"
 
 async def abrir_login():
     user_data_path = os.path.join(os.getcwd(), 'user_data')
@@ -22,12 +22,13 @@ async def abrir_login():
             channel="chrome",
             headless=False,
             viewport={"width": 1920, "height": 1080},
-            args=["--start-maximized"],
+            args=["--start-maximized", "--disable-blink-features=AutomationControlled"],
+            ignore_default_args=["--enable-automation"],
             device_scale_factor=1
         )
 
         page = await context.new_page()
-        await page.goto(URL_LOOKER, wait_until='domcontentloaded')
+        await page.goto(URL_LOGIN, wait_until='domcontentloaded')
 
         print("   [AGUARDANDO] Faça o login e pressione Ctrl+C quando terminar...")
 
